@@ -166,8 +166,10 @@ module GoogleDrive
           params = {:header => {"If-Match" => "*"}}.merge(params)
           initial_url = self.document_feed_entry.css(
               "link[rel='http://schemas.google.com/g/2005#resumable-edit-media']")[0]["href"]
-          @document_feed_entry = @session.upload_raw(
-              :put, initial_url, io, self.title, params)
+          initial_url += '&new-revision=true' if params[:new_revision]
+          f = @session.upload_raw(:put, initial_url, io, self.title, params)
+          @document_feed_entry = f.document_feed_entry
+          f
         end
         
         # If +permanent+ is +false+, moves the file to the trash.
