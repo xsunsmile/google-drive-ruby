@@ -59,15 +59,25 @@ module GoogleDrive
         end
 
         # Creates a sub-collection with given title. Returns GoogleDrive::Collection object.
-        def create_subcollection(title)
+        def create_subcollection(title, opts={})
           header = {"GData-Version" => "3.0", "Content-Type" => "application/atom+xml"}
-          xml = <<-EOS
+          xml_hidden = <<-EOS
+            <entry xmlns="http://www.w3.org/2005/Atom">
+              <category scheme="http://schemas.google.com/g/2005#kind"
+                term="http://schemas.google.com/docs/2007#folder"/>
+              <category scheme="http://schemas.google.com/g/2005/labels"
+                term="http://schemas.google.com/g/2005/labels#hidden" label="hidden"/>
+              <title>#{h(title)}</title>
+            </entry>
+          EOS
+          xml = opts[:hidden] ? xml_hidden : <<-"EOS"
             <entry xmlns="http://www.w3.org/2005/Atom">
               <category scheme="http://schemas.google.com/g/2005#kind"
                 term="http://schemas.google.com/docs/2007#folder"/>
               <title>#{h(title)}</title>
             </entry>
           EOS
+
           doc = @session.request(
               :post, contents_url, :data => xml, :header => header, :auth => :writely)
           return @session.entry_element_to_file(doc)

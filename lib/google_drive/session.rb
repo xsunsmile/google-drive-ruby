@@ -331,9 +331,20 @@ module GoogleDrive
             content_type = "application/octet-stream"
           end
           
-          initial_xml = <<-"EOS"
-            <entry xmlns="http://www.w3.org/2005/Atom" 
+          initial_xml_hidden = <<-"EOS"
+            <entry xmlns="http://www.w3.org/2005/Atom"
                 xmlns:docs="http://schemas.google.com/docs/2007">
+              <category scheme="http://schemas.google.com/g/2005/labels"
+                term="http://schemas.google.com/g/2005/labels#hidden" label="hidden"/>
+              <title>#{h(title)}</title>
+            </entry>
+          EOS
+          
+          initial_xml = params[:hidden] ? initial_xml_hidden : <<-"EOS"
+            <entry xmlns="http://www.w3.org/2005/Atom"
+                xmlns:docs="http://schemas.google.com/docs/2007">
+              <category scheme="http://schemas.google.com/g/2005/labels"
+                term="http://schemas.google.com/g/2005/labels#hidden" label="hidden"/>
               <title>#{h(title)}</title>
             </entry>
           EOS

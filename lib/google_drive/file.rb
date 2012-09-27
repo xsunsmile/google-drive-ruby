@@ -48,7 +48,11 @@ module GoogleDrive
         end
 
         def resource_id
-          return self.document_feed_entry.css("gd|resourceId").text.split(/:/)[1]
+          self.original_resource_id.split(/:/)[1]
+        end
+
+        def original_resource_id
+          self.document_feed_entry.css("gd|resourceId").text
         end
 
         # Title of the file.
@@ -79,6 +83,30 @@ module GoogleDrive
               raise(GoogleDrive::Error,
                 "ACL feed URL is in unknown format: #{orig_acl_feed_url}")
           end
+        end
+
+        # REVISION feed URL of the file.
+        def revision_feed_url
+          url = document_feed_entry.css("gd|feedLink[rel='http://schemas.google.com/docs/2007/revisions']")
+          url ? 
+            url[0]["href"] :
+            "https://docs.google.com/feeds/default/private/full/#{original_resource_id}/revisions"
+        end
+
+        def md5checksum
+          properties("docs|md5Checksum")
+        end
+
+        def original_filename
+          properties("docs|filename")
+        end
+
+        def size
+          properties("gd|quotaBytesUsed")
+        end
+
+        def properties(query)
+          self.document_feed_entry.css(query)[0].children[0].text
         end
 
         # Content types you can specify in methods download_to_file, download_to_string,
@@ -197,7 +225,8 @@ module GoogleDrive
           @session.request(
               :put, edit_url, :data => xml, :auth => :writely,
               :header => {"Content-Type" => "application/atom+xml", "If-Match" => "*"})
-          
+
+          self.title(reload:true)
         end
         
         alias title= rename
