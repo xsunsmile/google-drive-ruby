@@ -65,9 +65,9 @@ module GoogleDrive
             <entry xmlns="http://www.w3.org/2005/Atom">
               <category scheme="http://schemas.google.com/g/2005#kind"
                 term="http://schemas.google.com/docs/2007#folder"/>
+              <title>#{h(title)}</title>
               <category scheme="http://schemas.google.com/g/2005/labels"
                 term="http://schemas.google.com/g/2005/labels#hidden" label="hidden"/>
-              <title>#{h(title)}</title>
             </entry>
           EOS
           xml = opts[:hidden] ? xml_hidden : <<-"EOS"
